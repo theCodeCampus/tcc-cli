@@ -11,7 +11,7 @@ Commands:
 
 Usage:
 
-Put a "tcc-config.json" file in each project. Beware, first will be starting point.
+Put a "tcc-config.json" file in each project. First key in mapping will be used as starting branch.
 
 ## Ubuntu 16.04
 before yarn / npm install:
