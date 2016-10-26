@@ -1,4 +1,4 @@
-{
+module.exports = {
   "merges": [
     [
       "v2/00-init",
@@ -29,4 +29,4 @@
       "v2/25-test-angular-di"
     ]
   ]
-}
+};
