@@ -1,0 +1,30 @@
+{
+  "mapping": {
+    "v2/00-init": "v2/01-adjust-generated-code",
+    "v2/01-adjust-generated-code": "v2/02-components-data-binding",
+    "v2/02-components-data-binding": "v2/03-directives",
+    "v2/03-directives": "v2/04-components-inputs",
+    "v2/04-components-inputs": "v2/05-components-outputs",
+    "v2/05-components-outputs": "v2/06-property-bindings",
+    "v2/06-property-bindings": "v2/07-two-way-data-binding",
+    "v2/07-two-way-data-binding": "v2/08-service-with-mock",
+    "v2/08-service-with-mock": "v2/09-dependency-injection",
+    "v2/09-dependency-injection": "v2/10-components-lifecycle",
+    "v2/10-components-lifecycle": "v2/11-pipes",
+    "v2/11-pipes": "v2/12-custom-pipes",
+    "v2/12-custom-pipes": "v2/13-observables",
+    "v2/13-observables": "v2/14-routing-outlet",
+    "v2/14-routing-outlet": "v2/15-routing-params",
+    "v2/15-routing-params": "v2/16-routing-can-activate-guard",
+    "v2/16-routing-can-activate-guard": "v2/17-forms-form-component",
+    "v2/17-forms-form-component": "v2/18-forms-api-based",
+    "v2/18-forms-api-based": "v2/19-validation-basic",
+    "v2/19-validation-basic": "v2/20-validation-custom",
+    "v2/20-validation-custom": "v2/21-component-interaction",
+    "v2/21-component-interaction": "v2/22-data-flow",
+    "v2/22-data-flow": "v2/23-http",
+    "v2/23-http": "v2/24-test-jasmine",
+    "v2/24-test-jasmine": "v2/25-test-angular-di",
+    "v2/25-test-angular-di": "v2/26-test-angular-http"
+  }
+}
