@@ -2,7 +2,6 @@
   "name": "tcc-cli",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,8 +11,9 @@
     "commander": "^2.9.0",
     "nodegit": "^0.16.0"
   },
+  "main": "./src/tcc.js",
   "bin": {
-    "tcc": "./src/index.js"
+    "tcc": "./src/tcc.js"
   },
   "devDependencies": {
   }
