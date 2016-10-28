@@ -1,12 +1,16 @@
 {
   "name": "tcc-cli",
   "version": "0.1.0",
-  "description": "",
+  "description": "theCodeCampus CLI - Manage Hands-On Solutions",
+  "author": "W11K GmbH",
+  "contributors": [
+    "Can Kattwinkel",
+    "Philipp Burgmer"
+  ],
+  "license": "MIT",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "commander": "^2.9.0",
     "nodegit": "^0.16.0"
