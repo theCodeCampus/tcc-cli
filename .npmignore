@@ -1,5 +1,6 @@
 src
-yarn.lock
 tsconfig.json
+*.iml
+spec
 dist/**/*.spec.js
 dist/**/*.spec.js.map
