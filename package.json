@@ -9,16 +9,27 @@
   ],
   "license": "MIT",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc && chmod +x dist/tcc.js",
+    "prepublish": "npm run build",
+    "test": "tsc && jasmine"
   },
   "dependencies": {
     "commander": "^2.9.0",
-    "nodegit": "^0.16.0"
+    "lodash": "^4.16.4",
+    "nodegit": "^0.16.0",
+    "readline-sync": "^1.4.5",
+    "simple-git": "^1.59.0",
+    "winston": "^2.2.0"
   },
-  "main": "./src/tcc.js",
+  "main": "./dist/tcc.js",
   "bin": {
-    "tcc": "./src/tcc.js"
+    "tcc": "./dist/tcc.js"
   },
   "devDependencies": {
+    "@types/jasmine": "^2.5.36",
+    "@types/lodash": "^4.14.37",
+    "@types/winston": "0.0.29",
+    "jasmine": "^2.5.2",
+    "typescript": "2.0.2"
   }
 }
