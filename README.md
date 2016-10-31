@@ -1,25 +1,15 @@
-# Development
+# tcc-cli - theCodeCampus Command Line Interface
 
-Run:
+## Installation
 
-     npm link
-     
-Commands:
+Run ```npm install tcc-cli --save-dev``` in your project.
+Add a script to your package.json to use local installation.
 
-    tcc merge 
-    tcc zip
+## Usage
 
-Usage:
+Run ```tcc --help``` to see available commands and options.
+Put a "tcc-cli-config.js" file in each project. See ```node_modules/tcc-cli/tcc-cli-config.sample.js```.
 
-Put a "tcc-config.json" file in each project. First key in mapping will be used as starting branch.
+## Development
 
-## Ubuntu 16.04
-before yarn / npm install:
-    
-    sudo apt install libssl-dev
-    
-# Features
-    
-- Zip
-- Merge
-    - Ask to push afterwards
+Run ```npm link``` in your clone of this repo. Do not install or remove installation in project.
