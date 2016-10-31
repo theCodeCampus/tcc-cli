@@ -2,13 +2,21 @@
 
 ## Installation
 
-Run ```npm install tcc-cli --save-dev``` in your project.
+Run ```npm install @thecodecampus/tcc-cli --save-dev``` in your project.
 Add a script to your package.json to use local installation.
+
+```
+"scripts": {
+    "tcc": "tcc"
+}
+```
+
+Or run it via ```node_modules/.bin/tcc```
 
 ## Usage
 
 Run ```tcc --help``` to see available commands and options.
-Put a "tcc-cli-config.js" file in each project. See ```node_modules/tcc-cli/tcc-cli-config.sample.js```.
+Put a "tcc-cli-config.js" file in each project. See ```node_modules/@thecodecampus/tcc-cli/tcc-cli-config.sample.js```.
 
 ## Development
 
