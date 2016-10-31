@@ -10,8 +10,8 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc && chmod +x dist/tcc.js",
-    "prepublish": "npm run build",
-    "test": "tsc && jasmine"
+    "prepublish": "npm run test",
+    "test": "npm run build && jasmine"
   },
   "dependencies": {
     "commander": "^2.9.0",
