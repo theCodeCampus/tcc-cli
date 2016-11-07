@@ -16,6 +16,7 @@
   "dependencies": {
     "commander": "^2.9.0",
     "lodash": "^4.16.4",
+    "mkdirp": "^0.5.1",
     "nodegit": "^0.16.0",
     "readline-sync": "^1.4.5",
     "simple-git": "^1.59.0",

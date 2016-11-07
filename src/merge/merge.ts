@@ -2,57 +2,29 @@ import { reduceSynchronized } from "../utils/array-utils";
 import { Branch } from "../config";
 import { Oid, Repository } from "../nodegit";
 import * as winston from "winston";
+import { openRepository, checkRepoStatus } from "../utils/git";
 
 // import * as Git from "nodegit";
 const Git = require("nodegit");
 const simpleGit = require('simple-git');
-const readlineSync = require('readline-sync');
 
 const preferences = Git.Merge.PREFERENCE.NO_FASTFORWARD;
 const mergeOptions = new Git.MergeOptions();
 const checkoutOptions = new Git.CheckoutOptions();
 
-export function merge(repoPath: string, branchLists: Array<Branch[]>) {
-
+export function merge(repoPath: string, branchLists: Array<Branch[]>): Promise<any> {
   const applyInRepository = function (repository: Repository) {
     return applyBranchListsInRepository(branchLists, repository);
   };
 
   return openRepository(repoPath)
-  // check that repo is clean
+    // check that repo is clean
     .then(checkRepoStatus)
     // merge function needs access to repo and merges, use closure
     .then(applyInRepository)
     // do not expose internals, just return an empty promise for synchronisation
     .then(function () { });
 };
-
-export function openRepository(repoPath: string) {
-  winston.info(`try to open git repository at ${repoPath}`);
-
-  return Git.Repository
-    .open(repoPath)
-    .then(function (repository: Repository) {
-        winston.debug(`repository opened at ${repository.path()}`);
-      return repository;
-    });
-}
-
-export function checkRepoStatus(repository: Repository): Promise<Repository> {
-  return repository
-    .getStatus({
-      flags: Git.Status.OPT.INCLUDE_UNTRACKED | Git.Status.OPT.RECURSE_UNTRACKED_DIRS
-    })
-    .then(function (status: any[]) {
-      if (status.length > 0) {
-        throw "Repository has still uncommitted changes!";
-      }
-
-      winston.info("repository is clean");
-    })
-    // for chaining
-    .then(function () { return repository; });
-}
 
 export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: Repository) {
     const mergeLists: Array<Merge[]> = branchLists.map(mapBranchListToMergeList);
@@ -66,7 +38,7 @@ export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repos
     // wait for all merges and then return repository for chaining
     .then(function () {
       winston.debug(`all merges finished`);
-      return repository
+      return repository;
     });
 }
 
