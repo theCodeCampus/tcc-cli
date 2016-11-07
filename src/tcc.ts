@@ -11,9 +11,19 @@ var pkg = require("../package.json");
 
 commander
     .version(pkg.version)
-    .option('--debug', 'print debug messages')
-    .command('merge', 'merge branches').alias('m').action(tccCliMerge)
-    .command('export ', 'export branches').alias('z').action(tccCliExport)
+    .option('--debug', 'print debug messages');
+
+commander
+    .command('merge')
+    .alias('m')
+    .action(tccCliMerge);
+
+commander
+    .command('export')
+    .alias('e')
+    .action(tccCliExport);
+
+commander
     .parse(process.argv);
 
 if (commander.debug) {
