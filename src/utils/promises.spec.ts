@@ -1,4 +1,4 @@
-import { reduceSynchronized } from "./array-utils";
+import { reduceSynchronized } from "./promises";
 
 var winston = require("winston");
 // winston.level = "debug";

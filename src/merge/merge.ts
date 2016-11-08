@@ -1,4 +1,4 @@
-import { reduceSynchronized } from "../utils/array-utils";
+import { reduceSynchronized } from "../utils/promises";
 import { Branch } from "../configuration/configuration";
 import { Oid, Repository } from "../nodegit";
 import * as winston from "winston";

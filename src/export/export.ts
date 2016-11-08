@@ -1,4 +1,4 @@
-import { reduceSynchronized } from "../utils/array-utils";
+import { reduceSynchronized } from "../utils/promises";
 import * as winston from "winston";
 import { Branch, mapBranchListsToUniqueBranches } from "../configuration/configuration";
 import { openRepository, checkRepoStatus } from "../utils/git";
