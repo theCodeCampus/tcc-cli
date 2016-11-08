@@ -1,12 +1,11 @@
 import { reduceSynchronized } from "../utils/array-utils";
-import * as _ from "lodash";
 import * as winston from "winston";
-import { Branch } from "../config";
+import { Branch, mapBranchListsToUniqueBranches } from "../configuration/configuration";
 import { openRepository, checkRepoStatus } from "../utils/git";
 import { Repository } from "../nodegit";
-const simpleGit = require('simple-git');
 import * as path from "path";
 
+const simpleGit = require('simple-git');
 // import * as Git from "nodegit";
 const Git = require("nodegit");
 const mkdirp = require("mkdirp");
@@ -29,7 +28,7 @@ export function zip(repoPath: string, branchLists: Array<Branch[]>) {
 }
 
 export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: Repository): Promise<Repository> {
-  const branchesToExport = mapBranchListsToBranchSet(branchLists);
+  const branchesToExport = mapBranchListsToUniqueBranches(branchLists);
 
   const absExportTarget = path.join(repository.path(), "..", exportTarget);
 
@@ -82,10 +81,4 @@ export function applyBranchInRepository(branch: Branch, repository: Repository, 
       });
     })
     .then(function () { return repository; });
-}
-
-export function mapBranchListsToBranchSet(branchLists: Array<Branch[]>): Branch[] {
-  const branches = _.flatten(branchLists);
-  const uniqueBranches= _.uniq(branches);
-  return uniqueBranches;
 }

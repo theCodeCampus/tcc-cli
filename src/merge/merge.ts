@@ -1,5 +1,5 @@
 import { reduceSynchronized } from "../utils/array-utils";
-import { Branch } from "../config";
+import { Branch } from "../configuration/configuration";
 import { Oid, Repository } from "../nodegit";
 import * as winston from "winston";
 import { openRepository, checkRepoStatus } from "../utils/git";

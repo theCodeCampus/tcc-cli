@@ -1,4 +1,4 @@
-import { getConfig } from "./config";
+import { getConfig } from "./configuration/configuration";
 import * as winston from "winston";
 import { zip } from "./export/export";
 
@@ -15,4 +15,10 @@ export function tccCliExport() {
         winston.error(error);
       }
   );
+}
+
+export function registerExportCommand(commander: any) {
+  commander
+      .command('export')
+      .action(tccCliExport);
 }

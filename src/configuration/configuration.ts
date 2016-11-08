@@ -1,5 +1,6 @@
 import * as path from "path";
 import * as winston from "winston";
+import * as _ from "lodash";
 
 export function getConfig(root: string): Configuration {
 
@@ -15,4 +16,10 @@ export type Branch = string;
 
 export interface Configuration {
     merges: Array<Branch[]>;
+}
+
+export function mapBranchListsToUniqueBranches(branchLists: Array<Branch[]>): Branch[] {
+  const branches = _.flatten(branchLists);
+  const uniqueBranches= _.uniq(branches);
+  return uniqueBranches;
 }
