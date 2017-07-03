@@ -2,20 +2,17 @@ import { reduceSynchronized } from "../utils/promises";
 import * as winston from "winston";
 import { Branch, mapBranchListsToUniqueBranches } from "../configuration/configuration";
 import { openRepository, checkRepoStatus } from "../utils/git";
-import { Repository } from "../nodegit";
 import * as path from "path";
+import {SimpleGit} from 'simple-git/promise';
 
-const simpleGit = require('simple-git');
-// import * as Git from "nodegit";
-const Git = require("nodegit");
+const simpleGit = require('simple-git/promise');
 const mkdirp = require("mkdirp");
 
 const exportTarget = "solutions/step-by-step";
-const checkoutOptions = new Git.CheckoutOptions();
 
 export function zip(repoPath: string, branchLists: Array<Branch[]>) {
   const applyInRepository = function (repository: any) {
-    return applyBranchListsInRepository(branchLists, repository);
+    applyBranchListsInRepository(branchLists, repository, repoPath);
   };
 
   return openRepository(repoPath)
@@ -27,10 +24,10 @@ export function zip(repoPath: string, branchLists: Array<Branch[]>) {
       .then(function () { });
 }
 
-export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: Repository): Promise<Repository> {
+export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: SimpleGit, repoPath: string): Promise<SimpleGit> {
   const branchesToExport = mapBranchListsToUniqueBranches(branchLists);
 
-  const absExportTarget = path.join(repository.path(), "..", exportTarget);
+  const absExportTarget = path.join(repoPath, "..", exportTarget);
 
   const exportTargetCreated = new Promise(function (resolve, reject) {
     winston.debug(`will save exports to ${absExportTarget}`);
@@ -60,18 +57,17 @@ export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repos
   });
 }
 
-export function applyBranchInRepository(branch: Branch, repository: Repository, exportTarget: string): Promise<Repository> {
+export function applyBranchInRepository(branch: Branch, repository: SimpleGit, exportTarget: string): Promise<SimpleGit> {
 
-  return repository.checkoutBranch(branch, checkoutOptions)
+  return repository.checkout(branch)
     .then(function () {
-      const simpleRepo = simpleGit(repository.path() + "/..");
 
       return new Promise(function (resolve) {
         var branchNameWithoutVersion = branch.substring(branch.lastIndexOf("/"));
 
         winston.debug(`run export command`);
 
-        simpleRepo._run(
+        (repository as any)._run(
             ["archive", "--format=zip", "-o", `${exportTarget}/${branchNameWithoutVersion}.zip`, "HEAD"],
             function () {
               winston.debug(`finish export branch ${branch}`);

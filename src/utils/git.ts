@@ -1,20 +1,17 @@
-import * as winston from "winston";
-import { Repository } from "../nodegit";
+import * as winston from 'winston';
+import {SimpleGit, StatusResult} from 'simple-git/promise';
 
-// import * as Git from "nodegit";
-const Git = require("nodegit");
+const simpleGit = require('simple-git/promise');
 
-export function checkRepoStatus(repository: Repository): Promise<Repository> {
+export function checkRepoStatus(repository: SimpleGit): Promise<SimpleGit> {
   return repository
-      .getStatus({
-        flags: Git.Status.OPT.INCLUDE_UNTRACKED | Git.Status.OPT.RECURSE_UNTRACKED_DIRS
-      })
-      .then(function (status: any[]) {
-        if (status.length > 0) {
-          throw "Repository has still uncommitted changes!";
+      .status()
+      .then(function (status: StatusResult) {
+        if (status.isClean() === false) {
+          throw 'Repository has still uncommitted changes!';
         }
 
-        winston.info("repository is clean");
+        winston.info('repository is clean');
       })
       // for chaining
       .then(function () { return repository; });
@@ -22,11 +19,11 @@ export function checkRepoStatus(repository: Repository): Promise<Repository> {
 
 export function openRepository(repoPath: string) {
   winston.info(`try to open git repository at ${repoPath}`);
+  var repository = simpleGit(repoPath);
 
-  return Git.Repository
-      .open(repoPath)
-      .then(function (repository: Repository) {
-        winston.debug(`repository opened at ${repository.path()}`);
+  return Promise.resolve(repository)
+      .then(function (repository) {
+        winston.debug(`repository opened`);
         return repository;
       });
 }

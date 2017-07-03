@@ -1,19 +1,14 @@
 import { reduceSynchronized } from "../utils/promises";
 import { Branch } from "../configuration/configuration";
-import { Oid, Repository } from "../nodegit";
 import * as winston from "winston";
 import { openRepository, checkRepoStatus } from "../utils/git";
+import {SimpleGit} from 'simple-git/promise';
 
-// import * as Git from "nodegit";
-const Git = require("nodegit");
-const simpleGit = require('simple-git');
+const simpleGit = require('simple-git/promise');
 
-const preferences = Git.Merge.PREFERENCE.NO_FASTFORWARD;
-const mergeOptions = new Git.MergeOptions();
-const checkoutOptions = new Git.CheckoutOptions();
 
 export function merge(repoPath: string, branchLists: Array<Branch[]>): Promise<any> {
-  const applyInRepository = function (repository: Repository) {
+  const applyInRepository = function (repository: SimpleGit) {
     return applyBranchListsInRepository(branchLists, repository);
   };
 
@@ -26,7 +21,7 @@ export function merge(repoPath: string, branchLists: Array<Branch[]>): Promise<a
     .then(function () { });
 };
 
-export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: Repository) {
+export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: SimpleGit) {
     const mergeLists: Array<Merge[]> = branchLists.map(mapBranchListToMergeList);
 
     winston.debug(`start apply merge lists`);
@@ -42,7 +37,7 @@ export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repos
     });
 }
 
-export function applyMergeListInRepository(mergeList: Merge[], repository: Repository) {
+export function applyMergeListInRepository(mergeList: Merge[], repository: SimpleGit) {
   const sync = reduceSynchronized(mergeList, function (previous: any, merge: Merge) {
     winston.debug(`call "applyMergeInRepository" within "reduceSynchronized callback"`);
     return applyMergeInRepository(merge, repository);
@@ -51,15 +46,13 @@ export function applyMergeListInRepository(mergeList: Merge[], repository: Repos
   return sync;
 }
 
-export function applyMergeInRepository(merge: Merge, repository: Repository): Promise<any> {
-  const signature = Git.Signature.default(repository);
+export function applyMergeInRepository(merge: Merge, repository: SimpleGit): Promise<any> {
 
   winston.info(`start merging branch "${merge.from}" into "${merge.to}"`);
 
-  return repository.mergeBranches(merge.to, merge.from, signature, preferences, mergeOptions)
+  return repository.mergeFromTo(merge.to, merge.from, ['--no-ff'])
     .then(
-      function(oid: Oid) {
-        winston.debug(`Oid: ${oid}`);
+      function() {
         winston.info(`finished merging branch "${merge.from}" into "${merge.to}"`);
       },
       function (error) {
@@ -73,33 +66,16 @@ export function applyMergeInRepository(merge: Merge, repository: Repository): Pr
     });
 }
 
-export function applyMergeManually(merge: Merge, repository: Repository) {
+export function applyMergeManually(merge: Merge, repository: SimpleGit) {
   winston.debug(`checking out "${merge.to}" to start manually merge`);
-  return repository.checkoutBranch(merge.to, checkoutOptions)
+  return repository.checkout(merge.to)
     .then(function () {
       winston.debug(`create merge commit`);
-      // bug: Git.Merge.merge throws an error and I don't know how to fix it
-      // return Git.Merge.merge(repository, merge.from, mergeOptions, checkoutOptions);
-      // so we use another git library, which depends on a git installation
-      const simpleRepo = simpleGit(repository.path() + "/..");
 
-      return new Promise(function (resolve, reject) {
-        simpleRepo.mergeFromTo(merge.from, merge.to, function () {
-
-          reject("Abort merging due to merge conflicts. Please resolve merge conflicts, commit the changes and rerun this program!");
-
-          // winston.warn(`please resolve merge conflicts and do a commit`);
-          //
-          // const isMerged = readlineSync.keyInYN('Have you merged it?');
-          //
-          // if (isMerged) {
-          //   winston.info(`finished merging branch "${merge.from}" into "${merge.to}" after resolving merge conflicts`);
-          //   resolve();
-          // } else {
-          //   reject("abort merging due to unresolved merge conflicts");
-          // }
-        });
-      });
+      return repository.mergeFromTo(merge.from, merge.to)
+          .catch(() => {
+              throw "Abort merging due to merge conflicts. Please resolve merge conflicts, commit the changes and rerun this program!";
+          });
     });
 }
 
