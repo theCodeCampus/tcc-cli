@@ -5,14 +5,13 @@ import { openRepository, checkRepoStatus } from "../utils/git";
 import * as path from "path";
 import {SimpleGit} from 'simple-git/promise';
 
-const simpleGit = require('simple-git/promise');
 const mkdirp = require("mkdirp");
 
 const exportTarget = "solutions/step-by-step";
 
 export function zip(repoPath: string, branchLists: Array<Branch[]>) {
   const applyInRepository = function (repository: any) {
-    applyBranchListsInRepository(branchLists, repository, repoPath);
+    return applyBranchListsInRepository(branchLists, repository, repoPath);
   };
 
   return openRepository(repoPath)
@@ -27,7 +26,7 @@ export function zip(repoPath: string, branchLists: Array<Branch[]>) {
 export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: SimpleGit, repoPath: string): Promise<SimpleGit> {
   const branchesToExport = mapBranchListsToUniqueBranches(branchLists);
 
-  const absExportTarget = path.join(repoPath, "..", exportTarget);
+  const absExportTarget = path.join(repoPath, exportTarget);
 
   const exportTargetCreated = new Promise(function (resolve, reject) {
     winston.debug(`will save exports to ${absExportTarget}`);
@@ -51,7 +50,7 @@ export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repos
     });
   })
   // wait for all merges and then return repository for chaining
-  .then(function () {
+  .then(() => {
     winston.debug(`all exports finished`);
     return repository;
   });
@@ -60,21 +59,14 @@ export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repos
 export function applyBranchInRepository(branch: Branch, repository: SimpleGit, exportTarget: string): Promise<SimpleGit> {
 
   return repository.checkout(branch)
-    .then(function () {
+    .then(() => {
+      const branchNameWithoutVersion = branch.substring(branch.lastIndexOf("/"));
+      const args = ["archive", "--format=zip", "-o", `${exportTarget}/${branchNameWithoutVersion}.zip`, "HEAD"];
 
-      return new Promise(function (resolve) {
-        var branchNameWithoutVersion = branch.substring(branch.lastIndexOf("/"));
+      winston.debug(`run export command: ${args.join(" ")}`);
 
-        winston.debug(`run export command`);
-
-        (repository as any)._run(
-            ["archive", "--format=zip", "-o", `${exportTarget}/${branchNameWithoutVersion}.zip`, "HEAD"],
-            function () {
-              winston.debug(`finish export branch ${branch}`);
-              resolve ();
-            }
-        );
-      });
+      return (repository as any).raw(args);
     })
-    .then(function () { return repository; });
+    .then(() => { winston.debug(`finish export branch ${branch}`); })
+    .then(() => repository);
 }
