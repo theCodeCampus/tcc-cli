@@ -7,6 +7,7 @@ import {SimpleGit} from 'simple-git/promise';
 const simpleGit = require('simple-git/promise');
 
 
+
 export function merge(repoPath: string, branchLists: Array<Branch[]>): Promise<any> {
   const applyInRepository = function (repository: SimpleGit) {
     return applyBranchListsInRepository(branchLists, repository);
@@ -46,9 +47,17 @@ export function applyMergeListInRepository(mergeList: Merge[], repository: Simpl
   return sync;
 }
 
-export function applyMergeInRepository(merge: Merge, repository: SimpleGit): Promise<any> {
+export async function applyMergeInRepository(merge: Merge, repository: SimpleGit): Promise<any> {
 
   winston.info(`start merging branch "${merge.from}" into "${merge.to}"`);
+
+  /*
+    mergeFromTo seems to ignore one parameter, don't know which and why
+    current code with previous checkout and switched params for mergeFromTo
+    seems to work ...
+   */
+
+  await repository.checkout(merge.to);
 
   return repository.mergeFromTo(merge.to, merge.from, ['--no-ff'])
     .then(
