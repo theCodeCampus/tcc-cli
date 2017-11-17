@@ -7,6 +7,7 @@
     "Can Kattwinkel",
     "Philipp Burgmer"
   ],
+  "repository": "https://github.com/theCodeCampus/tcc-cli",
   "license": "MIT",
   "scripts": {
     "build": "tsc && chmod +x dist/tcc.js",
