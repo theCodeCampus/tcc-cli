@@ -57,9 +57,12 @@ export async function applyMergeInRepository(merge: Merge, repository: SimpleGit
     seems to work ...
    */
 
+  // mergeFromTo is not about merging to branches
+  // -> see https://github.com/steveukx/git-js/issues/92 for details
+
   await repository.checkout(merge.to);
 
-  return repository.mergeFromTo(merge.to, merge.from, ['--no-ff'])
+  return repository.merge([merge.from, '--no-ff'])
     .then(
       function() {
         winston.info(`finished merging branch "${merge.from}" into "${merge.to}"`);
