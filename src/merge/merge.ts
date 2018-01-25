@@ -4,91 +4,58 @@ import * as winston from "winston";
 import { openRepository, checkRepoStatus } from "../utils/git";
 import {SimpleGit} from 'simple-git/promise';
 
-const simpleGit = require('simple-git/promise');
-
-
-
-export function merge(repoPath: string, branchLists: Array<Branch[]>): Promise<any> {
-  const applyInRepository = function (repository: SimpleGit) {
-    return applyBranchListsInRepository(branchLists, repository);
-  };
-
-  return openRepository(repoPath)
-    // check that repo is clean
-    .then(checkRepoStatus)
-    // merge function needs access to repo and merges, use closure
-    .then(applyInRepository)
-    // do not expose internals, just return an empty promise for synchronisation
-    .then(function () { });
+export async function merge(repoPath: string, branchLists: Array<Branch[]>): Promise<void> {
+  const repository = await openRepository(repoPath);
+  await checkRepoStatus(repository);
+  await applyBranchListsInRepository(branchLists, repository);
 };
 
-export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: SimpleGit) {
+export async function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: SimpleGit): Promise<void> {
     const mergeLists: Array<Merge[]> = branchLists.map(mapBranchListToMergeList);
 
     winston.debug(`start apply merge lists`);
-
-    return reduceSynchronized(mergeLists, function (previous: any, mergeList: Merge[]) {
-      winston.debug(`call "applyMergeListInRepository" within "reduceSynchronized callback"`);
-      return applyMergeListInRepository(mergeList, repository);
-    })
-    // wait for all merges and then return repository for chaining
-    .then(function () {
-      winston.debug(`all merges finished`);
-      return repository;
-    });
+    await reduceSynchronized(
+      mergeLists,
+      (previous: any, mergeList: Merge[]) => applyMergeListInRepository(mergeList, repository)
+    );
+    winston.debug(`finished all merges`);
 }
 
-export function applyMergeListInRepository(mergeList: Merge[], repository: SimpleGit) {
-  const sync = reduceSynchronized(mergeList, function (previous: any, merge: Merge) {
-    winston.debug(`call "applyMergeInRepository" within "reduceSynchronized callback"`);
-    return applyMergeInRepository(merge, repository);
-  });
-
-  return sync;
+export async function applyMergeListInRepository(mergeList: Merge[], repository: SimpleGit): Promise<void> {
+  winston.debug(`start apply merge list`);
+  await reduceSynchronized(
+    mergeList,
+    (previous: any, merge: Merge) => applyMergeInRepository(merge, repository)
+  );
+  winston.debug(`finished apply merge list`);
 }
 
-export async function applyMergeInRepository(merge: Merge, repository: SimpleGit): Promise<any> {
+export async function applyMergeInRepository(merge: Merge, repository: SimpleGit): Promise<void> {
 
   winston.info(`start merging branch "${merge.from}" into "${merge.to}"`);
 
-  /*
-    mergeFromTo seems to ignore one parameter, don't know which and why
-    current code with previous checkout and switched params for mergeFromTo
-    seems to work ...
-   */
-
-  // mergeFromTo is not about merging to branches
-  // -> see https://github.com/steveukx/git-js/issues/92 for details
-
   await repository.checkout(merge.to);
 
-  return repository.merge([merge.from, '--no-ff'])
-    .then(
-      function() {
-        winston.info(`finished merging branch "${merge.from}" into "${merge.to}"`);
-      },
-      function (error) {
-        winston.debug(`merge failed, fallback to manually merge. error: ${error}`);
-        throw error;
-      }
-    )
-    .catch(function () {
-      winston.warn(`merge conflict while merging "${merge.from}" into "${merge.to}"`);
-      return applyMergeManually(merge, repository);
-    });
+  try {
+    await repository.merge([merge.from, '--no-ff'])
+    winston.info(`finished merging branch "${merge.from}" into "${merge.to}"`);
+  } catch (error) {
+    winston.debug(`merge failed, fallback to manually merge. error: ${error}`);
+    winston.warn(`merge conflict while merging "${merge.from}" into "${merge.to}"`);
+    await applyMergeManually(merge, repository);
+  }
 }
 
-export function applyMergeManually(merge: Merge, repository: SimpleGit) {
+export async function applyMergeManually(merge: Merge, repository: SimpleGit): Promise<void> {
   winston.debug(`checking out "${merge.to}" to start manually merge`);
-  return repository.checkout(merge.to)
-    .then(function () {
-      winston.debug(`create merge commit`);
+  await repository.checkout(merge.to);
 
-      return repository.mergeFromTo(merge.from, merge.to)
-          .catch(() => {
-              throw "Abort merging due to merge conflicts. Please resolve merge conflicts, commit the changes and rerun this program!";
-          });
-    });
+  try {
+    winston.debug(`create merge commit`);
+    await repository.mergeFromTo(merge.from, merge.to)
+  } catch (error) {
+    throw "Abort merging due to merge conflicts. Please resolve merge conflicts, commit the changes and rerun this program!";
+  }
 }
 
 export function mapBranchListToMergeList(branchList: Branch[]): Merge[] {

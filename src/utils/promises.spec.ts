@@ -3,9 +3,9 @@ import { reduceSynchronized } from "./promises";
 var winston = require("winston");
 // winston.level = "debug";
 
-describe("array utils", function () {
-  describe("reduceSynchronized", function () {
-    it("should not call worker function a second time before first promise resolves", function (done) {
+describe("array utils", () => {
+  describe("reduceSynchronized", () => {
+    it("should not call worker function a second time before first promise resolves", async () => {
       let spyContainer: any = {
         callback: function (previous: number, current: number) {
           winston.debug(`calling callback with ${current}`)
@@ -26,10 +26,7 @@ describe("array utils", function () {
 
       spyOn(spyContainer, "callback").and.callThrough();
 
-      reduceSynchronized([1, 2], spyContainer.callback, 0).then(
-        function () { done(); },
-        function () { done.fail(); }
-      );
+      return reduceSynchronized([1, 2], spyContainer.callback, 0);
     });
   });
 });

@@ -1,29 +1,22 @@
 import * as winston from 'winston';
-import {SimpleGit, StatusResult} from 'simple-git/promise';
+import { SimpleGit, StatusResult } from 'simple-git/promise';
 
 const simpleGit = require('simple-git/promise');
 
-export function checkRepoStatus(repository: SimpleGit): Promise<SimpleGit> {
-  return repository
-      .status()
-      .then(function (status: StatusResult) {
-        if (status.isClean() === false) {
-          throw 'Repository has still uncommitted changes!';
-        }
+export async function checkRepoStatus(repository: SimpleGit): Promise<void> {
+  const status: StatusResult = await repository.status();
 
-        winston.info('repository is clean');
-      })
-      // for chaining
-      .then(function () { return repository; });
+  if (status.isClean() === false) {
+      throw 'Repository has still uncommitted changes!';
+  }
+
+  winston.info('repository is clean');
 }
 
-export function openRepository(repoPath: string) {
+export async function openRepository(repoPath: string): Promise<SimpleGit> {
   winston.info(`try to open git repository at ${repoPath}`);
-  var repository = simpleGit(repoPath);
+  const repository = simpleGit(repoPath);
+  winston.debug(`repository opened`);
 
-  return Promise.resolve(repository)
-      .then(function (repository) {
-        winston.debug(`repository opened`);
-        return repository;
-      });
+  return repository;
 }

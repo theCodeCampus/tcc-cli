@@ -2,19 +2,17 @@ import { getConfig } from "./configuration/configuration";
 import * as winston from "winston";
 import { zip } from "./export/export";
 
-export function tccCliExport() {
+export async function tccCliExport(): Promise<void> {
   winston.info("start task export");
 
   var config = getConfig(process.cwd());
 
-  zip(process.cwd(), config.merges).then(
-      function () {
-        winston.info("finished task export");
-      },
-      function (error: any) {
-        winston.error(error);
-      }
-  );
+  try {
+    await zip(process.cwd(), config.merges);
+    winston.info("finished task export");
+  } catch(error) {
+    winston.error(error);
+  }
 }
 
 export function registerExportCommand(commander: any) {

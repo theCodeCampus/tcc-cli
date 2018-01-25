@@ -1,9 +1,10 @@
 import { checkRepoStatus } from "./git";
-import {SimpleGit, StatusResult} from 'simple-git/promise';
+import { SimpleGit, StatusResult } from 'simple-git/promise';
+
 describe("checking repository status", function () {
 
-  describe("on a clean repository", function () {
-    it("should return a resolved promise", function (done) {
+  describe("on a clean repository", () => {
+    it("should return a resolved promise", () => {
       const repository: Partial<SimpleGit> = {
         status: function (): Promise<StatusResult> {
           const result: Partial<StatusResult> = { isClean: () => true};
@@ -16,15 +17,12 @@ describe("checking repository status", function () {
       expect(actual).toBeDefined();
       expect(typeof actual.then).toBe("function");
 
-      actual.then(
-          function () { done(); },
-          function (x) { done.fail(x); }
-      );
+      return actual;
     });
   });
 
-  describe("on a dirty repository", function () {
-    it("should return a rejected promise", function (done) {
+  describe("on a dirty repository", () => {
+    it("should return a rejected promise", done => {
       const repository: Partial<SimpleGit> = {
         status: function (): Promise<StatusResult> {
           const result: Partial<StatusResult> = { isClean: () => false};
@@ -42,20 +40,5 @@ describe("checking repository status", function () {
           function () { done(); }
       );
     });
-  });
-
-  it("should return promise resolve with repository (for chaining)", function (done) {
-    const repository: Partial<SimpleGit> = {
-      status: function (): Promise<StatusResult> {
-        const result: Partial<StatusResult> = { isClean: () => true};
-        return Promise.resolve(result as StatusResult);
-      }
-    };
-
-    checkRepoStatus(repository as SimpleGit)
-        .then(function (x) {
-          expect(x).toBe(repository as SimpleGit);
-          done();
-        });
   });
 });

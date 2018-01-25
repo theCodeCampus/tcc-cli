@@ -1,7 +1,8 @@
-export function reduceSynchronized<T, U>(array: T[], callback: (u: U, t: T) => Promise<U>, start?: Promise<U>|U): Promise<U> {
-  return array.reduce(function(uPromise, t) {
-    return uPromise.then(function(u) {
-      return callback(u, t);
-    });
-  }, Promise.resolve(start));
+export function reduceSynchronized<T, U>(array: T[], callback: (previous: U | undefined, current: T) => Promise<U>, start?: Promise<U>|U): Promise<U | undefined> {
+  const initialValue: Promise<U | undefined> = Promise.resolve<U | undefined>(start);
+
+  return array.reduce(
+    (uPromise, t) => uPromise.then(u => callback(u, t)),
+    initialValue
+  );
 }

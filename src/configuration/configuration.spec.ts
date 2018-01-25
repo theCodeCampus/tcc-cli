@@ -1,4 +1,5 @@
 import { mapBranchListsToUniqueBranches } from "./configuration";
+
 describe("mapBranchListsToUniqueBranches", function () {
 
   it("should return a flat list", function () {
@@ -15,9 +16,9 @@ describe("mapBranchListsToUniqueBranches", function () {
 
     const actual = mapBranchListsToUniqueBranches([
       ["a", "b"],
-      ["a", "d"]
+      ["a", "c"]
     ]);
 
-    expect(actual).toEqual(["a", "b", "d"]);
+    expect(actual).toEqual(["a", "b", "c"]);
   });
 });

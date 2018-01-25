@@ -1,72 +1,57 @@
-import { reduceSynchronized } from "../utils/promises";
+import * as path from "path";
 import * as winston from "winston";
+import { SimpleGit } from 'simple-git/promise';
+
+import { reduceSynchronized } from "../utils/promises";
 import { Branch, mapBranchListsToUniqueBranches } from "../configuration/configuration";
 import { openRepository, checkRepoStatus } from "../utils/git";
-import * as path from "path";
-import {SimpleGit} from 'simple-git/promise';
 
 const mkdirp = require("mkdirp");
 
 const exportTarget = "solutions/step-by-step";
 
-export function zip(repoPath: string, branchLists: Array<Branch[]>) {
-  const applyInRepository = function (repository: any) {
-    return applyBranchListsInRepository(branchLists, repository, repoPath);
-  };
-
-  return openRepository(repoPath)
-      // check that repo is clean
-      .then(checkRepoStatus)
-      // merge function needs access to repo and merges, use closure
-      .then(applyInRepository)
-      // do not expose internals, just return an empty promise for synchronisation
-      .then(function () { });
+export async function zip(repoPath: string, branchLists: Array<Branch[]>): Promise<void> {
+  const repository = await openRepository(repoPath);
+  await checkRepoStatus(repository);
+  await applyBranchListsInRepository(branchLists, repository, repoPath);
 }
 
-export function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: SimpleGit, repoPath: string): Promise<SimpleGit> {
+export async function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: SimpleGit, repoPath: string): Promise<void> {
   const branchesToExport = mapBranchListsToUniqueBranches(branchLists);
 
   const absExportTarget = path.join(repoPath, exportTarget);
 
-  const exportTargetCreated = new Promise(function (resolve, reject) {
-    winston.debug(`will save exports to ${absExportTarget}`);
+  winston.debug(`will save export to ${absExportTarget}`);
+  await createDirRecursive(absExportTarget);
 
-    mkdirp(absExportTarget, function (error: any) {
-      if (error) {
-        reject(error);
-      }
-      else {
-        resolve();
-      }
-    })
+  winston.debug(`start apply branch lists`);
+  await reduceSynchronized(branchesToExport, (previous: any, branch: Branch) => {
+    return applyBranchInRepository(branch, repository, absExportTarget);
   });
+  winston.debug(`all exports finished`);
+}
 
-  return exportTargetCreated.then(function () {
-    winston.debug(`start apply branch lists`);
+async function createDirRecursive(path: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    winston.debug(`create "${path}" recursive`);
 
-    return reduceSynchronized(branchesToExport, function (previous: any, branch: Branch) {
-      winston.info(`export branch ${branch}`);
-      return applyBranchInRepository(branch, repository, absExportTarget);
-    });
-  })
-  // wait for all merges and then return repository for chaining
-  .then(() => {
-    winston.debug(`all exports finished`);
-    return repository;
+    mkdirp(path, (error: any) => {
+      if (error) { reject(error); }
+      else { resolve(); }
+    })
   });
 }
 
-export function applyBranchInRepository(branch: Branch, repository: SimpleGit, exportTarget: string): Promise<SimpleGit> {
+export async function applyBranchInRepository(branch: Branch, repository: SimpleGit, exportTarget: string): Promise<void> {
+  winston.info(`export branch ${branch}`);
 
-  return repository.checkout(branch)
-    .then(() => {
-      const branchNameWithoutVersion = branch.substring(branch.lastIndexOf("/"));
-      const args = ["archive", "--format=zip", "-o", `${exportTarget}/${branchNameWithoutVersion}.zip`, "HEAD"];
+  await repository.checkout(branch);
 
-      winston.debug(`run export command: ${args.join(" ")}`);
+  const branchNameWithoutVersion = branch.substring(branch.lastIndexOf("/"));
+  const args = ["archive", "--format=zip", "-o", `${exportTarget}/${branchNameWithoutVersion}.zip`, "HEAD"];
 
-      return (repository as any).raw(args);
-    })
-    .then(() => { winston.debug(`finish export branch ${branch}`); })
-    .then(() => repository);
+  winston.debug(`run export command: ${args.join(" ")}`);
+  await (repository as any).raw(args);
+
+  winston.debug(`finish export branch ${branch}`);
 }
