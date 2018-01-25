@@ -2,7 +2,7 @@ import { getConfig } from "./configuration/configuration";
 import { merge } from "./merge/merge";
 import * as winston from "winston";
 
-export async function tccCliMerge() {
+export async function tccCliMerge(options: { pull: boolean, push: boolean }) {
   winston.info("start task merge");
 
   var config = getConfig(process.cwd());
@@ -18,7 +18,7 @@ export async function tccCliMerge() {
 export function registerMergeCommand(commander: any) {
   commander
       .command('merge')
-      .option('--fetch', 'fetch from remote')
-      .option('--push', 'push to remote')
-      .action(tccCliMerge);
+      .option('--pull <remote>', 'pull from remote')
+      .option('--push <remote>', 'push to remote')
+      .action(async () => tccCliMerge(commander));
 }

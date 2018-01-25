@@ -1,22 +1,38 @@
 import { getConfig } from "./configuration/configuration";
 import * as winston from "winston";
-import { zip } from "./export/export";
+import * as path from "path";
 
-export async function tccCliExport(): Promise<void> {
-  winston.info("start task export");
-
-  var config = getConfig(process.cwd());
-
-  try {
-    await zip(process.cwd(), config.merges);
-    winston.info("finished task export");
-  } catch(error) {
-    winston.error(error);
-  }
-}
+import { exportBranches } from "./export/export";
 
 export function registerExportCommand(commander: any) {
   commander
       .command('export')
-      .action(tccCliExport);
+      .option('--output-dir <path>', 'relative path where to save the export', 'tcc-cli-export')
+      .option('--output-file <path>', 'name of the resulting zip file', 'export.zip')
+      .option('--read-package-json', 'read project name and version from package.json and use them for output-file naming')
+      .action(async (args: any) => {
+        winston.info(`start task export`);
+
+        const config = getConfig(process.cwd());
+
+        let nameFromPackageJson: string | undefined = undefined;
+
+        if (args.readPackageJson) {
+          const packageJson = require(path.join(process.cwd(), 'package.json'));
+
+          nameFromPackageJson = `${packageJson.name}_v${packageJson.version}.zip`;
+        }
+
+        const targetFolder = args.outputDir;
+        const targetFile = nameFromPackageJson || args.outputFile;
+
+        winston.debug(`saving exports to ${targetFolder}`);
+
+        try {
+          await exportBranches(process.cwd(), config.merges, targetFolder, targetFile);
+          winston.info("finished task export");
+        } catch (error) {
+          winston.error(error);
+        }
+      });
 }

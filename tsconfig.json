@@ -10,7 +10,7 @@
     "inlineSources": true,
     "rootDir": "./src",
     "outDir": "./dist",
-    "lib": [ "es6" ],
+    "lib": [ "es6", "dom" ],
     "baseUrl": "",
     "typeRoots": [
       "./node_modules/@types"

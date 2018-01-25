@@ -14,7 +14,7 @@ export async function checkRepoStatus(repository: SimpleGit): Promise<void> {
 }
 
 export async function openRepository(repoPath: string): Promise<SimpleGit> {
-  winston.info(`try to open git repository at ${repoPath}`);
+  winston.info(`open git repository at ${repoPath}`);
   const repository = simpleGit(repoPath);
   winston.debug(`repository opened`);
 

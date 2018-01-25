@@ -21,4 +21,5 @@ commander
 
 if (commander.debug) {
   winston.level = 'debug';
+  winston.debug('set log level to debug');
 }

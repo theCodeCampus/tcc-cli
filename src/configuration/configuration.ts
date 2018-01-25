@@ -9,6 +9,7 @@ export function getConfig(root: string): Configuration {
 
   var config = require(configPath);
 
+  winston.debug(`configuration read`);
   return config;
 };
 

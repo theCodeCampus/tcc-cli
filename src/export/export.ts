@@ -1,57 +1,85 @@
-import * as path from "path";
-import * as winston from "winston";
+import * as path from 'path';
+import * as fs from 'fs';
+import * as fse from 'fs-extra';
+import * as winston from 'winston';
 import { SimpleGit } from 'simple-git/promise';
+import * as JSZip from 'jszip';
 
-import { reduceSynchronized } from "../utils/promises";
-import { Branch, mapBranchListsToUniqueBranches } from "../configuration/configuration";
-import { openRepository, checkRepoStatus } from "../utils/git";
+import { Branch, mapBranchListsToUniqueBranches } from '../configuration/configuration';
+import { openRepository, checkRepoStatus } from '../utils/git';
 
-const mkdirp = require("mkdirp");
+const branchesSubDir = 'branches';
 
-const exportTarget = "solutions/step-by-step";
+export async function exportBranches(basePath: string, branchLists: Array<Branch[]>, targetFolderPathRelative: string, targetFileName: string): Promise<void> {
+  const targetFolderPathAbsolute = path.join(basePath, targetFolderPathRelative);
+  const branchExportTarget = path.join(targetFolderPathAbsolute, branchesSubDir);
+  const zipExportTarget = path.join(targetFolderPathAbsolute, targetFileName);
 
-export async function zip(repoPath: string, branchLists: Array<Branch[]>): Promise<void> {
-  const repository = await openRepository(repoPath);
+  // prepare
+  await cleanup(targetFolderPathAbsolute);
+  const repository = await openRepository(basePath);
   await checkRepoStatus(repository);
-  await applyBranchListsInRepository(branchLists, repository, repoPath);
-}
-
-export async function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: SimpleGit, repoPath: string): Promise<void> {
   const branchesToExport = mapBranchListsToUniqueBranches(branchLists);
 
-  const absExportTarget = path.join(repoPath, exportTarget);
-
-  winston.debug(`will save export to ${absExportTarget}`);
-  await createDirRecursive(absExportTarget);
+  winston.debug(`will save branches export to ${branchExportTarget}`);
+  await fse.mkdirp(branchExportTarget);
 
   winston.debug(`start apply branch lists`);
-  await reduceSynchronized(branchesToExport, (previous: any, branch: Branch) => {
-    return applyBranchInRepository(branch, repository, absExportTarget);
-  });
-  winston.debug(`all exports finished`);
+
+  const targetZip = new JSZip();
+
+  for (let branch of branchesToExport) {
+    const branchZipFile = await exportBranch(branch, repository, branchExportTarget);
+
+    winston.debug(`add branch zip file to export zip`);
+    const branchZipFilePath = path.join(branchZipFile.path, branchZipFile.file);
+    const fileContent = await fse.readFile(branchZipFilePath);
+    targetZip.file(branchZipFile.file, fileContent);
+  }
+
+  winston.debug(`write export zip to ${zipExportTarget}`);
+  await writeZipToFile(zipExportTarget, targetZip);
+
+  // delete single branch zip files
+  await fse.remove(branchExportTarget);
+
+  winston.debug(`finished all branch exports`);
 }
 
-async function createDirRecursive(path: string): Promise<void> {
+async function cleanup(path: string): Promise<void> {
+  winston.info(`clean up folder ${path}`);
+  await fse.emptyDir(path);
+}
+
+async function writeZipToFile(targetPath: string, zip: JSZip): Promise<void> {
   return new Promise<void>((resolve, reject) => {
-    winston.debug(`create "${path}" recursive`);
-
-    mkdirp(path, (error: any) => {
-      if (error) { reject(error); }
-      else { resolve(); }
-    })
+    zip
+      .generateNodeStream({ type:'nodebuffer', streamFiles:true })
+      .pipe(fs.createWriteStream(targetPath, { flags: 'w' }))
+      .on('finish', function () {
+        resolve();
+      });
   });
+
 }
 
-export async function applyBranchInRepository(branch: Branch, repository: SimpleGit, exportTarget: string): Promise<void> {
+export async function exportBranch(branch: Branch, repository: SimpleGit, exportTarget: string): Promise<{ path: string, file: string}> {
   winston.info(`export branch ${branch}`);
 
   await repository.checkout(branch);
 
-  const branchNameWithoutVersion = branch.substring(branch.lastIndexOf("/"));
-  const args = ["archive", "--format=zip", "-o", `${exportTarget}/${branchNameWithoutVersion}.zip`, "HEAD"];
+  const branchNameWithoutVersion = branch.substring(branch.lastIndexOf('/'));
+  const targetFile = `${branchNameWithoutVersion}.zip`;
+  const targetFileWithPath = path.join(exportTarget, targetFile);
+  const args = ['archive', '--format=zip', '-o', targetFileWithPath, 'HEAD'];
 
-  winston.debug(`run export command: ${args.join(" ")}`);
+  winston.debug(`run export command: ${args.join(' ')}`);
   await (repository as any).raw(args);
 
   winston.debug(`finish export branch ${branch}`);
+
+  return Promise.resolve({
+    path: exportTarget,
+    file: targetFile
+  });
 }

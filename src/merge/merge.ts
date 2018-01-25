@@ -1,4 +1,3 @@
-import { reduceSynchronized } from "../utils/promises";
 import { Branch } from "../configuration/configuration";
 import * as winston from "winston";
 import { openRepository, checkRepoStatus } from "../utils/git";
@@ -11,22 +10,24 @@ export async function merge(repoPath: string, branchLists: Array<Branch[]>): Pro
 };
 
 export async function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: SimpleGit): Promise<void> {
-    const mergeLists: Array<Merge[]> = branchLists.map(mapBranchListToMergeList);
+  const mergeLists: Array<Merge[]> = branchLists.map(mapBranchListToMergeList);
 
-    winston.debug(`start apply merge lists`);
-    await reduceSynchronized(
-      mergeLists,
-      (previous: any, mergeList: Merge[]) => applyMergeListInRepository(mergeList, repository)
-    );
-    winston.debug(`finished all merges`);
+  winston.debug(`start apply merge lists`);
+
+  for (const mergeList of mergeLists) {
+    await applyMergeListInRepository(mergeList, repository);
+  }
+
+  winston.debug(`finished all merges`);
 }
 
 export async function applyMergeListInRepository(mergeList: Merge[], repository: SimpleGit): Promise<void> {
   winston.debug(`start apply merge list`);
-  await reduceSynchronized(
-    mergeList,
-    (previous: any, merge: Merge) => applyMergeInRepository(merge, repository)
-  );
+
+  for (let merge of mergeList) {
+    await applyMergeInRepository(merge, repository);
+  }
+
   winston.debug(`finished apply merge list`);
 }
 
