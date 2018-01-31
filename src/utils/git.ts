@@ -40,3 +40,16 @@ export async function getFirstRemote(repository: SimpleGit): Promise<string> {
 
   return Promise.resolve(firstRemote);
 }
+
+export async function getRemote(config: string | boolean, repository: SimpleGit): Promise<string | false> {
+  let remote: string | false;
+
+  if (config === true) {
+    remote = await getFirstRemote(repository);
+  }
+  else {
+    remote = config;
+  }
+
+  return remote;
+}

@@ -10,6 +10,7 @@ export function registerExportCommand(commander: CommanderStatic) {
 
   command
     .description('export all branches to zip files and zip all the files to one file')
+    .option('--pull [remote]', 'pull-merge', false)
     .option('--output-dir <path>', 'relative path where to save the export', 'tcc-cli-export')
     .option('--output-file <path>', 'name of the resulting zip file', 'export.zip')
     .option('--read-package-json', 'read project name and version from package.json and use them for output-file naming')
@@ -33,10 +34,12 @@ export function registerExportCommand(commander: CommanderStatic) {
       const targetFolder = options.outputDir;
       const targetFile = nameFromPackageJson || options.outputFile;
 
+      const pull: string | boolean = options.pull || options.pullPush;
+
       logger.debug(`saving exports to ${targetFolder}`);
 
       try {
-        await archive(process.cwd(), config.merges, targetFolder, targetFile);
+        await archive(process.cwd(), config.merges, targetFolder, targetFile, pull);
         logger.info("finished task export");
       } catch (error) {
         logger.error(error);

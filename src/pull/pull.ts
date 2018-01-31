@@ -1,5 +1,5 @@
 import { Branch, mapBranchListsToUniqueBranches } from "../configuration/configuration";
-import { getFirstRemote, openRepository } from "../utils/git";
+import { getFirstRemote, getRemote, openRepository } from "../utils/git";
 import { SimpleGit } from "simple-git/promise";
 import { logger } from "../utils/logging";
 

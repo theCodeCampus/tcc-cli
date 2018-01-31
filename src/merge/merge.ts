@@ -1,5 +1,5 @@
 import { Branch } from "../configuration/configuration";
-import { checkRepoStatus, getFirstRemote, openRepository } from "../utils/git";
+import { checkRepoStatus, getRemote, openRepository } from "../utils/git";
 import { SimpleGit } from 'simple-git/promise';
 import { pullBranch } from "../pull/pull";
 import { pushBranch } from "../push/push";
@@ -14,19 +14,6 @@ export async function merge(repoPath: string, branchLists: Array<Branch[]>, pull
 
   await applyBranchListsInRepository(branchLists, repository, pullRemote, pushRemote);
 };
-
-async function getRemote(config: string | boolean, repository: SimpleGit): Promise<string|false> {
-  let remote: string | false;
-
-  if (config === true) {
-    remote = await getFirstRemote(repository);
-  }
-  else {
-    remote = config;
-  }
-
-  return remote;
-}
 
 export async function applyBranchListsInRepository(branchLists: Array<Branch[]>, repository: SimpleGit, pull: string | false, push: string | false): Promise<void> {
   const mergeLists: Array<Merge[]> = branchLists.map(mapBranchListToMergeList);

@@ -5,13 +5,14 @@ import { SimpleGit } from 'simple-git/promise';
 import * as JSZip from 'jszip';
 
 import { Branch, mapBranchListsToUniqueBranches } from '../configuration/configuration';
-import { checkRepoStatus, openRepository } from '../utils/git';
+import { checkRepoStatus, getRemote, openRepository } from '../utils/git';
 import { logger } from "../utils/logging";
+import { pullBranch } from "../pull/pull";
 
 const branchesSubDir = 'branches';
 
 // named archive because export is a reserved word
-export async function archive(basePath: string, branchLists: Array<Branch[]>, targetFolderPathRelative: string, targetFileName: string): Promise<void> {
+export async function archive(basePath: string, branchLists: Array<Branch[]>, targetFolderPathRelative: string, targetFileName: string, pull: string | boolean): Promise<void> {
   const targetFolderPathAbsolute = path.join(basePath, targetFolderPathRelative);
   const branchExportTarget = path.join(targetFolderPathAbsolute, branchesSubDir);
   const zipExportTarget = path.join(targetFolderPathAbsolute, targetFileName);
@@ -22,6 +23,8 @@ export async function archive(basePath: string, branchLists: Array<Branch[]>, ta
   await checkRepoStatus(repository);
   const branchesToExport = mapBranchListsToUniqueBranches(branchLists);
 
+  const pullRemote = await getRemote(pull, repository);
+
   logger.debug(`will save branches export to ${branchExportTarget}`);
   await fse.mkdirp(branchExportTarget);
 
@@ -30,7 +33,7 @@ export async function archive(basePath: string, branchLists: Array<Branch[]>, ta
   const targetZip = new JSZip();
 
   for (let branch of branchesToExport) {
-    const branchZipFile = await exportBranch(branch, repository, branchExportTarget);
+    const branchZipFile = await exportBranch(branch, repository, branchExportTarget, pullRemote);
 
     logger.debug(`add branch zip file to export zip`);
     const branchZipFilePath = path.join(branchZipFile.path, branchZipFile.file);
@@ -64,10 +67,16 @@ async function writeZipToFile(targetPath: string, zip: JSZip): Promise<void> {
 
 }
 
-export async function exportBranch(branch: Branch, repository: SimpleGit, exportTarget: string): Promise<{ path: string, file: string}> {
-  logger.info(`export branch ${branch}`);
+export async function exportBranch(branch: Branch, repository: SimpleGit, exportTarget: string, pullRemote: string | false): Promise<{ path: string; file: string }> {
 
-  await repository.checkout(branch);
+  if (pullRemote) {
+    await pullBranch(branch, repository, pullRemote);
+  }
+  else {
+    await repository.checkout(branch);
+  }
+  
+  logger.info(`export branch ${branch}`);
 
   const branchNameWithoutVersion = branch.substring(branch.lastIndexOf('/'));
   const targetFile = `${branchNameWithoutVersion}.zip`;
