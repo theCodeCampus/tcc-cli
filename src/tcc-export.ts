@@ -1,38 +1,47 @@
 import { getConfig } from "./configuration/configuration";
-import * as winston from "winston";
 import * as path from "path";
 
-import { exportBranches } from "./export/export";
+import { archive } from "./export/export";
+import { addLoggingOption, logger, setLogLevel } from "./utils/logging";
+import { CommanderStatic } from "commander";
 
-export function registerExportCommand(commander: any) {
-  commander
-      .command('export')
-      .option('--output-dir <path>', 'relative path where to save the export', 'tcc-cli-export')
-      .option('--output-file <path>', 'name of the resulting zip file', 'export.zip')
-      .option('--read-package-json', 'read project name and version from package.json and use them for output-file naming')
-      .action(async (args: any) => {
-        winston.info(`start task export`);
+export function registerExportCommand(commander: CommanderStatic) {
+  const command = commander.command('export');
 
-        const config = getConfig(process.cwd());
+  command
+    .description('export all branches to zip files and zip all the files to one file')
+    .option('--output-dir <path>', 'relative path where to save the export', 'tcc-cli-export')
+    .option('--output-file <path>', 'name of the resulting zip file', 'export.zip')
+    .option('--read-package-json', 'read project name and version from package.json and use them for output-file naming')
+    .action(async (args: any) => {
+      const options = args.opts();
 
-        let nameFromPackageJson: string | undefined = undefined;
+      setLogLevel(options);
 
-        if (args.readPackageJson) {
-          const packageJson = require(path.join(process.cwd(), 'package.json'));
+      logger.info(`start task export`);
 
-          nameFromPackageJson = `${packageJson.name}_v${packageJson.version}.zip`;
-        }
+      const config = await getConfig(process.cwd());
 
-        const targetFolder = args.outputDir;
-        const targetFile = nameFromPackageJson || args.outputFile;
+      let nameFromPackageJson: string | undefined = undefined;
 
-        winston.debug(`saving exports to ${targetFolder}`);
+      if (args.readPackageJson) {
+        const packageJson = require(path.join(process.cwd(), 'package.json'));
 
-        try {
-          await exportBranches(process.cwd(), config.merges, targetFolder, targetFile);
-          winston.info("finished task export");
-        } catch (error) {
-          winston.error(error);
-        }
-      });
+        nameFromPackageJson = `${packageJson.name}_v${packageJson.version}.zip`;
+      }
+
+      const targetFolder = options.outputDir;
+      const targetFile = nameFromPackageJson || options.outputFile;
+
+      logger.debug(`saving exports to ${targetFolder}`);
+
+      try {
+        await archive(process.cwd(), config.merges, targetFolder, targetFile);
+        logger.info("finished task export");
+      } catch (error) {
+        logger.error(error);
+      }
+    });
+
+  addLoggingOption(command);
 }

@@ -1,5 +1,5 @@
-import * as winston from 'winston';
 import { SimpleGit, StatusResult } from 'simple-git/promise';
+import { logger } from "./logging";
 
 const simpleGit = require('simple-git/promise');
 
@@ -10,13 +10,33 @@ export async function checkRepoStatus(repository: SimpleGit): Promise<void> {
       throw 'Repository has still uncommitted changes!';
   }
 
-  winston.info('repository is clean');
+  logger.info('repository is clean');
 }
 
 export async function openRepository(repoPath: string): Promise<SimpleGit> {
-  winston.info(`open git repository at ${repoPath}`);
+  logger.debug(`open git repository at ${repoPath}`);
   const repository = simpleGit(repoPath);
-  winston.debug(`repository opened`);
+  logger.debug(`repository opened`);
 
-  return repository;
+  return Promise.resolve(repository);
+}
+
+export async function getFirstRemote(repository: SimpleGit): Promise<string> {
+  const args = ['remote'];
+
+  const output: string = await (repository as any).raw(args);
+  logger.debug(`output of 'git remote': ${output}`);
+
+  const remotes = output.trim().split('\n');
+
+  if (remotes.length === 0) {
+    throw new Error('No remote configured');
+  }
+  logger.debug(`${remotes.length} remotes found: ${JSON.stringify(remotes)}`)
+
+  const firstRemote = remotes[0];
+
+  logger.debug(`first remote: ${firstRemote}`);
+
+  return Promise.resolve(firstRemote);
 }
