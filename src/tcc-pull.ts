@@ -7,7 +7,7 @@ export function registerPullCommand(commander: CommanderStatic) {
   const command = commander.command('pull');
 
   command
-    .description('pull configures branches (create or update local branches) from a remote repository')
+    .description('pull configured branches (create or update local branches) from a remote repository')
     .option('--remote [name]', 'name of the remote repository to pull from, default: first configured remote (git remote)')
     .action(async (args: any) => {
       const options = args.opts();

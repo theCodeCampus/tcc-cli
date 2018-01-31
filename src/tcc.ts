@@ -4,6 +4,7 @@ import { registerMergeCommand } from "./tcc-merge";
 import { registerExportCommand } from "./tcc-export";
 import { registerPullCommand } from "./tcc-pull";
 import { registerPushCommand } from "./tcc-push";
+import { registerDeleteCommand } from "./tcc-delete";
 
 var commander = require("commander");
 var pkg = require("../package.json");
@@ -18,6 +19,7 @@ registerMergeCommand(commander);
 registerExportCommand(commander);
 registerPullCommand(commander);
 registerPushCommand(commander);
+registerDeleteCommand(commander);
 
 commander
     .parse(process.argv);
