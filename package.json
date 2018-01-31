@@ -1,6 +1,6 @@
 {
   "name": "@thecodecampus/tcc-cli",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "theCodeCampus CLI - Manage Hands-On Solutions",
   "author": "W11K GmbH",
   "contributors": [
@@ -11,7 +11,8 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc && chmod +x dist/tcc.js",
-    "test": "npm run build && jasmine"
+    "test": "npm run build && jasmine",
+    "prepare": "npm run test"
   },
   "dependencies": {
     "commander": "2.13.0",
