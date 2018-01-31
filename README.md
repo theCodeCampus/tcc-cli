@@ -16,7 +16,8 @@ Or run it via ```node_modules/.bin/tcc```
 ## Usage
 
 Run ```tcc --help``` to see available commands and options.
-Put a "tcc-cli-config.js" file in each project. See ```node_modules/@thecodecampus/tcc-cli/tcc-cli-config.sample.js```.
+
+Create a "tcc-cli-config.js" file in your project. See ```node_modules/@thecodecampus/tcc-cli/tcc-cli-config.sample.js```.
 
 ## Development
 
