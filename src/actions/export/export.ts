@@ -4,9 +4,9 @@ import * as fse from 'fs-extra';
 import { SimpleGit } from 'simple-git/promise';
 import * as JSZip from 'jszip';
 
-import { Branch, mapBranchListsToUniqueBranches } from '../configuration/configuration';
-import { checkRepoStatus, getRemote, openRepository } from '../utils/git';
-import { logger } from "../utils/logging";
+import { Branch, mapBranchListsToUniqueBranches } from '../../configuration/configuration';
+import { checkRepoStatus, getRemote, openRepository } from '../../utils/git';
+import { logger } from "../../utils/logging";
 import { pullBranch } from "../pull/pull";
 
 const branchesSubDir = 'branches';

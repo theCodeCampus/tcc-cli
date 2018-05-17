@@ -1,5 +1,5 @@
 import { getConfig } from "./configuration/configuration";
-import { pull } from "./pull/pull";
+import { pull } from "./actions/pull/pull";
 import { addLoggingOption, logger, setLogLevel } from "./utils/logging";
 import { CommanderStatic } from "commander";
 

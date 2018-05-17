@@ -1,5 +1,5 @@
 import { getConfig } from "./configuration/configuration";
-import { merge } from "./merge/merge";
+import { merge } from "./actions/merge/merge";
 import { addLoggingOption, logger, setLogLevel } from "./utils/logging";
 import { CommanderStatic } from "commander";
 

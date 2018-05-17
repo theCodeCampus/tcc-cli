@@ -1,7 +1,7 @@
 import { getConfig } from "./configuration/configuration";
 import * as path from "path";
 
-import { archive } from "./export/export";
+import { archive } from "./actions/export/export";
 import { addLoggingOption, logger, setLogLevel } from "./utils/logging";
 import { CommanderStatic } from "commander";
 

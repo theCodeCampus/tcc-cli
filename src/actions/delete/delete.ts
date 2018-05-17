@@ -1,7 +1,7 @@
-import { Branch, mapBranchListsToUniqueBranches } from "../configuration/configuration";
-import { getFirstRemote, getRemote, openRepository } from "../utils/git";
+import { Branch, mapBranchListsToUniqueBranches } from "../../configuration/configuration";
+import { openRepository } from "../../utils/git";
 import { SimpleGit } from "simple-git/promise";
-import { logger } from "../utils/logging";
+import { logger } from "../../utils/logging";
 
 // named remove because delete is a reserved keyword
 export async function remove(basePath: string, branchLists: Array<Branch[]>, remote: string | undefined): Promise<void> {

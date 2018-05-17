@@ -1,9 +1,9 @@
-import { Branch } from "../configuration/configuration";
-import { checkRepoStatus, getRemote, openRepository } from "../utils/git";
+import { Branch } from "../../configuration/configuration";
+import { checkRepoStatus, getRemote, openRepository } from "../../utils/git";
 import { SimpleGit } from 'simple-git/promise';
 import { pullBranch } from "../pull/pull";
 import { pushBranch } from "../push/push";
-import { logger } from "../utils/logging";
+import { logger } from "../../utils/logging";
 
 export async function merge(repoPath: string, branchLists: Array<Branch[]>, pull: string | boolean, push: string | boolean): Promise<void> {
   const repository = await openRepository(repoPath);
