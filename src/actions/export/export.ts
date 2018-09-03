@@ -78,7 +78,8 @@ export async function exportBranch(branch: Branch, repository: SimpleGit, export
   
   logger.info(`export branch ${branch}`);
 
-  const branchNameWithoutVersion = branch.substring(branch.lastIndexOf('/'));
+  const reg = /^v[0-9]{1,3}\//;
+  const branchNameWithoutVersion = branch.replace(reg, "").replace("/", "-");
   const targetFile = `${branchNameWithoutVersion}.zip`;
   const targetFileWithPath = path.join(exportTarget, targetFile);
   const args = ['archive', '--format=zip', '-o', targetFileWithPath, 'HEAD'];
