@@ -41,6 +41,24 @@ export async function getFirstRemote(repository: SimpleGit): Promise<string> {
   return Promise.resolve(firstRemote);
 }
 
+export async function amendCommitWithMessage(repository: SimpleGit, message: string): Promise<void> {
+    const args = ['commit', '--amend', `-m="${message}"`];
+
+    await (repository as any).raw(args);
+    logger.debug(`Amend with message "${message}"`);
+
+    return Promise.resolve();
+}
+
+export async function getRemoteUrl(repository: SimpleGit, remoteName: string): Promise<string> {
+    const args = ['remote', 'get-url', remoteName];
+
+    const output: string = (await (repository as any).raw(args)).trim();
+    logger.debug(`output of 'git remote get-url ${remoteName}': ${output}`);
+
+    return Promise.resolve(output);
+}
+
 export async function getRemote(config: string | boolean, repository: SimpleGit): Promise<string | false> {
   let remote: string | false;
 
