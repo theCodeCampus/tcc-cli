@@ -6,6 +6,7 @@ import { registerPullCommand } from "./tcc-pull";
 import { registerPushCommand } from "./tcc-push";
 import { registerDeleteCommand } from "./tcc-delete";
 import { registerBuildCommand } from "./tcc-build";
+import { registerGitExportCommand } from './tcc-git-export';
 
 var commander = require("commander");
 var pkg = require("../package.json");
@@ -22,6 +23,7 @@ registerPullCommand(commander);
 registerPushCommand(commander);
 registerDeleteCommand(commander);
 registerBuildCommand(commander);
+registerGitExportCommand(commander);
 
 commander
     .parse(process.argv);
