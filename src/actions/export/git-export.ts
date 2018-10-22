@@ -43,6 +43,8 @@ export async function gitExport(basePath: string,
         await (tmpGit as any).removeRemote(remote);
         logger.debug(`removed remote ${remote}`);
 
+        await tmpGit.checkout('master');
+
         // zipping
         await emptyDir(targetFolderPathAbsolute);
         const Archiver = require('archiver');
