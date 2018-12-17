@@ -41,8 +41,14 @@ export async function getFirstRemote(repository: SimpleGit): Promise<string> {
   return Promise.resolve(firstRemote);
 }
 
-export async function amendCommitWithMessage(repository: SimpleGit, message: string): Promise<void> {
-    const args = ['commit', '--amend', `-m="${message}"`];
+export async function amendCommit(repository: SimpleGit, message?: string): Promise<void> {
+    const args = ['commit', '--amend'];
+
+    if (message !== undefined) {
+      args.push(`-m`, message, `--allow-empty-message`);
+    } else {
+      args.push(`--no-edit`);
+    }
 
     await (repository as any).raw(args);
     logger.debug(`Amend with message "${message}"`);
@@ -70,4 +76,17 @@ export async function getRemote(config: string | boolean, repository: SimpleGit)
   }
 
   return remote;
+}
+
+export async function removeRemotes(repository: SimpleGit): Promise<void> {
+  const args = ['remote'];
+
+  const output: string = await (repository as any).raw(args);
+  logger.debug(`output of 'git remote': ${output}`);
+
+  const remotes = output.trim().split('\n');
+
+  for (let remote of remotes) {
+    await (repository as any).removeRemote(remote);
+  }
 }

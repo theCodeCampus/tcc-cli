@@ -11,7 +11,6 @@ export function registerGitExportCommand(commander: CommanderStatic) {
         .description('exports repository as git but without confusing history')
         .option('--output-dir <path>', 'relative path where to save the export', 'tcc-cli-export')
         .option('--output-file <path>', 'name of the resulting zip file', 'export.zip')
-        .option('--remote [name]', 'name of the remote repository to make copy from, default: first configured remote (git remote)')
         .option('--read-package-json', 'read project name and version from package.json and use them for output-file naming')
         .action(async (args: any) => {
             const options = args.opts();
@@ -34,7 +33,7 @@ export function registerGitExportCommand(commander: CommanderStatic) {
             const targetFile = nameFromPackageJson || options.outputFile;
 
             try {
-                await gitExport(process.cwd(), config.merges, targetFolder, targetFile, options.remote);
+                await gitExport(process.cwd(), config.merges, targetFolder, targetFile);
                 logger.info("finished task git-export");
             } catch (error) {
                 logger.error(error);
