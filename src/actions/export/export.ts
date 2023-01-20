@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as fse from 'fs-extra';
-import { SimpleGit } from 'simple-git/promise';
+import { SimpleGit } from 'simple-git';
 import * as JSZip from 'jszip';
 
 import { Branch, mapBranchListsToUniqueBranches } from '../../configuration/configuration';

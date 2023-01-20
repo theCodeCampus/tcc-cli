@@ -1,6 +1,6 @@
 import { Branch, mapBranchListsToUniqueBranches } from "../../configuration/configuration";
 import { getFirstRemote, openRepository } from "../../utils/git";
-import { SimpleGit } from "simple-git/promise";
+import { SimpleGit } from "simple-git";
 import { logger } from "../../utils/logging";
 
 export async function push(basePath: string, branchLists: Array<Branch[]>, remote: string | undefined): Promise<void> {
