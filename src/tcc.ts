@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { Command } from '@commander-js/extra-typings';
 
 import { registerMergeCommand } from "./tcc-merge";
 import { registerExportCommand } from "./tcc-export";
@@ -8,8 +9,10 @@ import { registerDeleteCommand } from "./tcc-delete";
 import { registerBuildCommand } from "./tcc-build";
 import { registerGitExportCommand } from './tcc-git-export';
 
-var commander = require("commander");
-var pkg = require("../package.json");
+const { createCommand } = require('commander');
+const commander: Command = createCommand();
+
+const pkg = require("../package.json");
 
 commander
     .description(`

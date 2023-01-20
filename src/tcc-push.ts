@@ -1,9 +1,9 @@
 import { getConfig } from "./configuration/configuration";
 import { push } from "./actions/push/push";
 import { addLoggingOption, logger, setLogLevel } from "./utils/logging";
-import { CommanderStatic } from "commander";
+import { Command } from "@commander-js/extra-typings";
 
-export function registerPushCommand(commander: CommanderStatic) {
+export function registerPushCommand(commander: Command) {
   const command = commander.command('push');
 
   command

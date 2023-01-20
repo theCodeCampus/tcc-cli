@@ -1,10 +1,10 @@
-import { CommanderStatic } from 'commander';
+import { Command } from "@commander-js/extra-typings";
 import { addLoggingOption, logger, setLogLevel } from './utils/logging';
 import { getConfig } from './configuration/configuration';
 import { gitExport } from './actions/export/git-export';
 import * as path from "path";
 
-export function registerGitExportCommand(commander: CommanderStatic) {
+export function registerGitExportCommand(commander: Command) {
     const command = commander.command('git-export');
 
     command

@@ -1,9 +1,9 @@
 import { getConfig } from "./configuration/configuration";
 import { pull } from "./actions/pull/pull";
 import { addLoggingOption, logger, setLogLevel } from "./utils/logging";
-import { CommanderStatic } from "commander";
+import { Command } from "@commander-js/extra-typings";
 
-export function registerPullCommand(commander: CommanderStatic) {
+export function registerPullCommand(commander: Command) {
   const command = commander.command('pull');
 
   command

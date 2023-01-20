@@ -3,9 +3,9 @@ import * as path from "path";
 
 import { archive } from "./actions/export/export";
 import { addLoggingOption, logger, setLogLevel } from "./utils/logging";
-import { CommanderStatic } from "commander";
+import { Command } from "@commander-js/extra-typings";
 
-export function registerExportCommand(commander: CommanderStatic) {
+export function registerExportCommand(commander: Command) {
   const command = commander.command('export');
 
   command

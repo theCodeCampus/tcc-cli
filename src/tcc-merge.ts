@@ -1,9 +1,9 @@
 import { getConfig } from "./configuration/configuration";
 import { merge } from "./actions/merge/merge";
 import { addLoggingOption, logger, setLogLevel } from "./utils/logging";
-import { CommanderStatic } from "commander";
+import { Command } from "@commander-js/extra-typings";
 
-export function registerMergeCommand(commander: CommanderStatic) {
+export function registerMergeCommand(commander: Command) {
   const command = commander.command('merge');
 
   command

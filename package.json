@@ -17,10 +17,10 @@
   },
   "dependencies": {
     "archiver": "^3.0.0",
-    "commander": "2.13.0",
+    "commander": "10.0.0",
     "fs-extra": "5.0.0",
-    "jszip": "3.1.5",
-    "lodash": "4.17.11",
+    "jszip": "3.10.1",
+    "lodash": "4.17.21",
     "rimraf": "^2.6.2",
     "simple-git": "^3.15.0",
     "winston": "2.4.0"
@@ -30,6 +30,7 @@
     "tcc": "./dist/tcc.js"
   },
   "devDependencies": {
+    "@commander-js/extra-typings": "^10.0.1",
     "jasmine": "2.9.0",
     "@types/archiver": "^2.1.2",
     "@types/fs-extra": "5.0.0",
