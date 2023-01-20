@@ -8,8 +8,7 @@ import { logger } from '../../utils/logging';
 import * as rimraf from 'rimraf';
 import * as archiver from 'archiver';
 import { Archiver } from 'archiver';
-
-const simpleGit = require('simple-git/promise');
+import { simpleGit } from "simple-git";
 
 export async function gitExport(basePath: string,
                                 branchLists: Array<Branch[]>,
