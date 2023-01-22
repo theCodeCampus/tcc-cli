@@ -1,5 +1,5 @@
-import * as path from "path";
-import * as _ from "lodash";
+import { join } from "path";
+import { flatten, uniq } from "lodash";
 import { openRepository } from "../utils/git";
 import { logger } from "../utils/logging";
 
@@ -20,7 +20,7 @@ import { logger } from "../utils/logging";
  */
 export async function getConfig(root: string, withCheckout = true): Promise<Configuration> {
 
-  const configPath = path.join(root || process.cwd(), 'tcc-cli-config.js');
+  const configPath = join(root || process.cwd(), 'tcc-cli-config.js');
   logger.debug(`read configuration from ${configPath}`);
 
   let config: Configuration = require(configPath);
@@ -50,8 +50,8 @@ export async function getConfig(root: string, withCheckout = true): Promise<Conf
 }
 
 export function mapBranchListsToUniqueBranches(branchLists: Array<Branch[]>): Branch[] {
-  const branches = _.flatten(branchLists);
-  const uniqueBranches= _.uniq(branches);
+  const branches = flatten(branchLists);
+  const uniqueBranches= uniq(branches);
   return uniqueBranches;
 }
 

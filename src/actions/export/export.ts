@@ -1,7 +1,6 @@
-import * as path from 'path';
-import * as fs from 'fs';
-import * as fse from 'fs-extra';
-import { SimpleGit } from 'simple-git/promise';
+import { join } from 'path';
+import { createWriteStream, emptyDir, mkdirp, readFile, remove } from 'fs-extra';
+import { SimpleGit } from 'simple-git';
 import * as JSZip from 'jszip';
 
 import { Branch, mapBranchListsToUniqueBranches } from '../../configuration/configuration';
@@ -13,9 +12,9 @@ const branchesSubDir = 'branches';
 
 // named archive because export is a reserved word
 export async function archive(basePath: string, branchLists: Array<Branch[]>, targetFolderPathRelative: string, targetFileName: string, pull: string | boolean): Promise<void> {
-  const targetFolderPathAbsolute = path.join(basePath, targetFolderPathRelative);
-  const branchExportTarget = path.join(targetFolderPathAbsolute, branchesSubDir);
-  const zipExportTarget = path.join(targetFolderPathAbsolute, targetFileName);
+  const targetFolderPathAbsolute = join(basePath, targetFolderPathRelative);
+  const branchExportTarget = join(targetFolderPathAbsolute, branchesSubDir);
+  const zipExportTarget = join(targetFolderPathAbsolute, targetFileName);
 
   // prepare
   await cleanup(targetFolderPathAbsolute);
@@ -26,7 +25,7 @@ export async function archive(basePath: string, branchLists: Array<Branch[]>, ta
   const pullRemote = await getRemote(pull, repository);
 
   logger.debug(`will save branches export to ${branchExportTarget}`);
-  await fse.mkdirp(branchExportTarget);
+  await mkdirp(branchExportTarget);
 
   logger.debug(`start apply branch lists`);
 
@@ -36,8 +35,8 @@ export async function archive(basePath: string, branchLists: Array<Branch[]>, ta
     const branchZipFile = await exportBranch(branch, repository, branchExportTarget, pullRemote);
 
     logger.debug(`add branch zip file to export zip`);
-    const branchZipFilePath = path.join(branchZipFile.path, branchZipFile.file);
-    const fileContent = await fse.readFile(branchZipFilePath);
+    const branchZipFilePath = join(branchZipFile.path, branchZipFile.file);
+    const fileContent = await readFile(branchZipFilePath);
     targetZip.file(branchZipFile.file, fileContent);
   }
 
@@ -45,21 +44,21 @@ export async function archive(basePath: string, branchLists: Array<Branch[]>, ta
   await writeZipToFile(zipExportTarget, targetZip);
 
   // delete single branch zip files
-  await fse.remove(branchExportTarget);
+  await remove(branchExportTarget);
 
   logger.debug(`finished all branch exports`);
 }
 
 async function cleanup(path: string): Promise<void> {
   logger.info(`clean up folder ${path}`);
-  await fse.emptyDir(path);
+  await emptyDir(path);
 }
 
 async function writeZipToFile(targetPath: string, zip: JSZip): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     zip
-      .generateNodeStream({ type:'nodebuffer', streamFiles:true })
-      .pipe(fs.createWriteStream(targetPath, { flags: 'w' }))
+        .generateNodeStream({type: 'nodebuffer', streamFiles: true})
+        .pipe(createWriteStream(targetPath, {flags: 'w'}))
       .on('finish', function () {
         resolve();
       });
@@ -81,7 +80,7 @@ export async function exportBranch(branch: Branch, repository: SimpleGit, export
   const reg = /^v[0-9]{1,3}\//;
   const branchNameWithoutVersion = branch.replace(reg, "").replace("/", "-");
   const targetFile = `${branchNameWithoutVersion}.zip`;
-  const targetFileWithPath = path.join(exportTarget, targetFile);
+  const targetFileWithPath = join(exportTarget, targetFile);
   const args = ['archive', '--format=zip', '-o', targetFileWithPath, 'HEAD'];
 
   logger.debug(`run export command: ${args.join(' ')}`);

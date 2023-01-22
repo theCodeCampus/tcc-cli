@@ -1,9 +1,9 @@
 import { getConfig } from "./configuration/configuration";
 import { addLoggingOption, logger, setLogLevel } from "./utils/logging";
-import { CommanderStatic } from "commander";
+import { Command } from "@commander-js/extra-typings";
 import { remove } from "./actions/delete/delete";
 
-export function registerDeleteCommand(commander: CommanderStatic) {
+export function registerDeleteCommand(commander: Command) {
   const command = commander.command('delete');
 
   command

@@ -1,9 +1,9 @@
 import { getConfig } from "./configuration/configuration";
 import { addLoggingOption, logger, setLogLevel } from "./utils/logging";
-import { CommanderStatic } from "commander";
+import { Command } from "@commander-js/extra-typings";
 import { build } from "./actions/build/build";
 
-export function registerBuildCommand(commander: CommanderStatic) {
+export function registerBuildCommand(commander: Command) {
   const command = commander.command('build');
 
   command

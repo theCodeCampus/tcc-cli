@@ -1,6 +1,6 @@
 import { Branch, mapBranchListsToUniqueBranches } from "../../configuration/configuration";
 import { openRepository } from "../../utils/git";
-import { SimpleGit } from "simple-git/promise";
+import { SimpleGit } from "simple-git";
 import { logger } from "../../utils/logging";
 
 // named remove because delete is a reserved keyword

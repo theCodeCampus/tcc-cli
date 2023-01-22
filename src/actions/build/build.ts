@@ -1,7 +1,7 @@
-import * as path from 'path';
+import { join }from 'path';
 import {spawn} from "child_process";
-import * as fse from 'fs-extra';
-import { SimpleGit } from 'simple-git/promise';
+import { writeJSON, emptyDir, mkdirp } from 'fs-extra';
+import { SimpleGit } from 'simple-git';
 
 import { Branch, mapBranchListsToUniqueBranches } from '../../configuration/configuration';
 import { checkRepoStatus, getRemote, openRepository } from '../../utils/git';
@@ -9,8 +9,8 @@ import { logger } from "../../utils/logging";
 import { pullBranch } from "../pull/pull";
 
 export async function build(basePath: string, branchLists: Array<Branch[]>, targetFolderPathRelative: string, pull: string | boolean): Promise<void> {
-  const targetFolderPathAbsolute = path.join(basePath, targetFolderPathRelative);
-  const targetFilePathAbsolute = path.join(targetFolderPathAbsolute, 'distributions.json');
+  const targetFolderPathAbsolute = join(basePath, targetFolderPathRelative);
+  const targetFilePathAbsolute = join(targetFolderPathAbsolute, 'distributions.json');
 
   // prepare
   await cleanup(targetFolderPathAbsolute);
@@ -21,7 +21,7 @@ export async function build(basePath: string, branchLists: Array<Branch[]>, targ
   const pullRemote = await getRemote(pull, repository);
 
   logger.debug(`will save branches build artifacts to ${targetFolderPathAbsolute}`);
-  await fse.mkdirp(targetFolderPathAbsolute);
+  await mkdirp(targetFolderPathAbsolute);
 
   logger.debug(`start apply branch lists`);
 
@@ -32,14 +32,14 @@ export async function build(basePath: string, branchLists: Array<Branch[]>, targ
     distributions.push(distribution);
   }
 
-  await fse.writeJSON(targetFilePathAbsolute, distributions, { spaces: 2 });
+  await writeJSON(targetFilePathAbsolute, distributions, { spaces: 2 });
 
   logger.debug(`finished all branch exports`);
 }
 
 async function cleanup(path: string): Promise<void> {
   logger.info(`clean up folder ${path}`);
-  await fse.emptyDir(path);
+  await emptyDir(path);
 }
 
 export async function exportBranch(branch: Branch, repository: SimpleGit, exportTarget: string, pullRemote: string | false): Promise<string> {
@@ -54,7 +54,7 @@ export async function exportBranch(branch: Branch, repository: SimpleGit, export
   logger.info(`export branch ${branch}`);
 
   const branchNameWithoutVersion = branch.substring(branch.lastIndexOf('/'));
-  const targetPath = path.join(exportTarget, branchNameWithoutVersion);
+  const targetPath = join(exportTarget, branchNameWithoutVersion);
 
   logger.debug(`run ng build command`);
 

@@ -1,15 +1,15 @@
 import { checkRepoStatus } from "./git";
-import { SimpleGit, StatusResult } from 'simple-git/promise';
+import { SimpleGit, StatusResult, Response } from 'simple-git';
 
 describe("checking repository status", function () {
 
   describe("on a clean repository", () => {
     it("should return a resolved promise", () => {
       const repository: Partial<SimpleGit> = {
-        status: function (): Promise<StatusResult> {
+        status: function (): Promise<Response<StatusResult>> {
           const result: Partial<StatusResult> = { isClean: () => true};
-          return Promise.resolve(result as StatusResult);
-        }
+          return Promise.resolve(result as any);
+        } as any
       };
 
       const actual = checkRepoStatus(repository as SimpleGit);
@@ -27,7 +27,7 @@ describe("checking repository status", function () {
         status: function (): Promise<StatusResult> {
           const result: Partial<StatusResult> = { isClean: () => false};
           return Promise.resolve(result as StatusResult);
-        }
+        } as any
       };
 
       const actual = checkRepoStatus(repository as SimpleGit);
