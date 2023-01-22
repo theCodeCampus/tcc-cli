@@ -1,8 +1,7 @@
 import { Branch, mapBranchListsToUniqueBranches } from '../../configuration/configuration';
-import * as path from "path";
-import { sep } from "path";
+import { sep, join } from "path";
 import { emptyDir, mkdtemp, createWriteStream } from 'fs-extra';
-import * as os from "os";
+import { tmpdir } from 'os';
 import { amendCommit, openRepository, removeRemotes } from '../../utils/git';
 import { logger } from '../../utils/logging';
 import * as rimraf from 'rimraf';
@@ -15,10 +14,10 @@ export async function gitExport(basePath: string,
                                 targetFolderPathRelative: string,
                                 targetFileName: string
 ) {
-    const targetFolderPathAbsolute = path.join(basePath, targetFolderPathRelative);
-    const zipExportTarget = path.join(targetFolderPathAbsolute, targetFileName);
+    const targetFolderPathAbsolute = join(basePath, targetFolderPathRelative);
+    const zipExportTarget = join(targetFolderPathAbsolute, targetFileName);
 
-    const tmpDir = await mkdtemp(`${os.tmpdir()}${sep}`);
+    const tmpDir = await mkdtemp(`${tmpdir()}${sep}`);
     logger.debug('created temp dir ', tmpDir);
 
     try {

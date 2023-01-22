@@ -2,7 +2,7 @@ import { Command } from "@commander-js/extra-typings";
 import { addLoggingOption, logger, setLogLevel } from './utils/logging';
 import { getConfig } from './configuration/configuration';
 import { gitExport } from './actions/export/git-export';
-import * as path from "path";
+import { join } from "path";
 
 export function registerGitExportCommand(commander: Command) {
     const command = commander.command('git-export');
@@ -26,7 +26,7 @@ export function registerGitExportCommand(commander: Command) {
 
             let nameFromPackageJson: string | undefined = undefined;
             if (args.readPackageJson) {
-                const packageJson = require(path.join(process.cwd(), 'package.json'));
+                const packageJson = require(join(process.cwd(), 'package.json'));
 
                 nameFromPackageJson = `${packageJson.name}_v${packageJson.version}.zip`;
             }

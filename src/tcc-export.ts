@@ -1,5 +1,5 @@
 import { getConfig } from "./configuration/configuration";
-import * as path from "path";
+import { join } from "path";
 
 import { archive } from "./actions/export/export";
 import { addLoggingOption, logger, setLogLevel } from "./utils/logging";
@@ -26,7 +26,7 @@ export function registerExportCommand(commander: Command) {
       let nameFromPackageJson: string | undefined = undefined;
 
       if (args.readPackageJson) {
-        const packageJson = require(path.join(process.cwd(), 'package.json'));
+        const packageJson = require(join(process.cwd(), 'package.json'));
 
         nameFromPackageJson = `${packageJson.name}_v${packageJson.version}.zip`;
       }
