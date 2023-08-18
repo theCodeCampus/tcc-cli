@@ -1,7 +1,7 @@
 import * as path from 'path';
 import {spawn} from "child_process";
 import * as fse from 'fs-extra';
-import { SimpleGit } from 'simple-git/promise';
+import { SimpleGit } from 'simple-git';
 
 import { Branch, mapBranchListsToUniqueBranches } from '../../configuration/configuration';
 import { checkRepoStatus, getRemote, openRepository } from '../../utils/git';

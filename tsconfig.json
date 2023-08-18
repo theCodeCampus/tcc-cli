@@ -12,9 +12,7 @@
     "outDir": "./dist",
     "lib": [ "es6", "dom" ],
     "baseUrl": "",
-    "typeRoots": [
-      "./node_modules/@types"
-    ]
+    "skipLibCheck": true
   },
 
   "exclude": [

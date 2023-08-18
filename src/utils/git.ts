@@ -1,7 +1,6 @@
-import { SimpleGit, StatusResult } from 'simple-git/promise';
+import { simpleGit, SimpleGit, StatusResult } from 'simple-git';
 import { logger } from "./logging";
 
-const simpleGit = require('simple-git/promise');
 
 export async function checkRepoStatus(repository: SimpleGit): Promise<void> {
   const status: StatusResult = await repository.status();
