@@ -89,3 +89,16 @@ export async function removeRemotes(repository: SimpleGit): Promise<void> {
     await (repository as any).removeRemote(remote);
   }
 }
+
+export async function checkoutOrCreateBranch(repository: SimpleGit, branchName: string): Promise<void> {
+    const checkoutArgs = ['checkout', branchName];
+    const createArgs = ['checkout', '-b', branchName];
+
+    try {
+        logger.debug(`try to checkout branch ${branchName}`);
+        await repository.raw(checkoutArgs);
+    } catch (e) {
+        logger.debug(`branch ${branchName} does not exist, create it`);
+        await repository.raw(createArgs);
+    }
+}
